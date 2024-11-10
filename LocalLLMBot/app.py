@@ -8,8 +8,8 @@ from discord.ext import commands
 
 load_dotenv()
 intents = discord.Intents.default()
-intents.messages = True
-bot = commands.Bot(command_prefix="/test ", intents=intents)
+intents.message_content = True
+bot = commands.Bot(command_prefix="/t ", intents=intents)
 
 
 @bot.event
@@ -23,5 +23,9 @@ async def on_ready():
 #   },
 # ])
 # print(response['message']['content'])
+
+@bot.command(name="introduce")
+async def hello(ctx):
+    await ctx.send("Hello, I'm Goku!")
 
 bot.run(os.getenv("DISCORD_BOT_TOKEN"))

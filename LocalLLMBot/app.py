@@ -69,5 +69,8 @@ async def ask(ctx):
     ])
     await ctx.send(response["message"]["content"])
 
+"""TO DO:
 
+    ADD MORE FEATURES/COMMANDS (Summarise based off user prompt)
+    DOCKERISE THE BOT"""
 bot.run(os.getenv("DISCORD_BOT_TOKEN"))

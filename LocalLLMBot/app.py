@@ -28,4 +28,14 @@ async def on_ready():
 async def hello(ctx):
     await ctx.send("Hello, I'm Goku!")
 
+@bot.command(name="ask")
+async def ask(ctx, *, message):
+    response = ollama.chat(model='llama3.2', messages=[
+        {
+    'role': 'user',
+    'content': message,
+        },
+    ])
+    await ctx.send(response["message"]["content"])
+
 bot.run(os.getenv("DISCORD_BOT_TOKEN"))

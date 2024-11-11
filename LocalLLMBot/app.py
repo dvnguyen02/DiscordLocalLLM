@@ -8,6 +8,8 @@ from discord.ext import commands
 import re
 from youtube_transcript_api import YouTubeTranscriptApi
 from youtube_transcript_api.formatters import TextFormatter
+from collections import defaultdict
+import time
 
 load_dotenv()
 intents = discord.Intents.default()
@@ -17,7 +19,7 @@ bot = commands.Bot(command_prefix="/t ", intents=intents)
 
 @bot.event
 async def on_ready():
-    print(f"Test is ready as {bot.user.name}")
+    print(f"Bot is ready as {bot.user.name}!")
 
 # response = ollama.chat(model='llama3.2', messages=[
 #   {
@@ -75,7 +77,7 @@ async def ask(ctx):
 
 # """
 # Give a summary of youtube video"""
-@bot.command(name="youtube_summary")
+@bot.command(name="ytsum")
 async def youtube_summary(ctx, url: str):
     """Summarize a YouTube video based on its transcript"""
     try:
@@ -131,6 +133,120 @@ async def youtube_summary(ctx, url: str):
     except Exception as e:
         await ctx.send(f"An error occurred while processing the video: {str(e)}")
 
+
+channel_messages = defaultdict(list)
+channel_listening = defaultdict(bool)
+listening_start_time = defaultdict(float)
+
+@bot.command(name="listen")
+async def listen(ctx):
+    """Start listening to the conversation in this channel"""
+    channel_id = ctx.channel.id
+    
+    if channel_listening[channel_id]:
+        await ctx.send("*I am observing this chat.*")
+        return
+    
+    channel_messages[channel_id] = []  # Clear previous messages
+    channel_listening[channel_id] = True
+    listening_start_time[channel_id] = time.time()
+    
+    await ctx.send("* Use `/t summarise` to get the summary.*")
+
+@bot.event
+async def on_message(message):
+    """Event handler to capture messages while listening"""
+    # Ignore messages from the bot itself
+    if message.author == bot.user:
+        return
+    
+    channel_id = message.channel.id
+    
+    # If we're listening in this channel, store the message
+    if channel_listening[channel_id]:
+        timestamp = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
+        channel_messages[channel_id].append({
+            'author': message.author.display_name,
+            'content': message.content,
+            'timestamp': timestamp
+        })
+    
+    # This is necessary to make commands work
+    await bot.process_commands(message)
+
+@bot.command(name="sum")
+async def summarise_chat(ctx):
+    """Summarize the conversation since the listen command was used"""
+    channel_id = ctx.channel.id
+    
+    if not channel_listening[channel_id]:
+        await ctx.send("*I wasn't observing this realm. Use `/t listen` first.*")
+        return
+    
+    if not channel_messages[channel_id]:
+        await ctx.send("*There is nothing to analyze. These mortals have been surprisingly quiet.*")
+        return
+    
+    # Calculate duration
+    duration = time.time() - listening_start_time[channel_id]
+    duration_minutes = round(duration / 60, 1)
+    
+    # Format messages for summarization
+    formatted_messages = "\n".join([
+        f"{msg['timestamp']} - {msg['author']}: {msg['content']}"
+        for msg in channel_messages[channel_id]
+    ])
+    
+    summary_prompt = f"""
+    Analyze and summarize this conversation that lasted {duration_minutes} minutes.
+    Focus on key discussion points, main participants, and important conclusions.
+    
+    Conversation:
+    ```
+    {formatted_messages}
+    ```
+    
+    Provide:
+    1. Main topics discussed
+    2. Key points or decisions made
+    3. Notable patterns or interesting observations
+    Keep the summary under 200 words.
+    """
+    
+    # Send processing message
+    await ctx.send("*Analyzing these mortal interactions...*")
+    
+    # Get summary from llama
+    response = ollama.chat(model='llama3.2', messages=[
+        {
+            'role': 'system',
+            'content': 'You are Goku Black. Provide a dramatic and slightly condescending summary of the conversation while maintaining your villainous character.'
+        },
+        {
+            'role': 'user',
+            'content': summary_prompt,
+        },
+    ])
+    
+    # Send summary and reset
+    await ctx.send(response["message"]["content"])
+    
+    # Optional: Stop listening after summarizing
+    channel_listening[channel_id] = False
+    channel_messages[channel_id] = []
+    
+@bot.command(name="stop")
+async def stop_listening(ctx):
+    """Stop listening to the conversation in this channel"""
+    channel_id = ctx.channel.id
+    
+    if not channel_listening[channel_id]:
+        await ctx.send("*Hmph. I wasn't observing this realm anyway.*")
+        return
+    
+    channel_listening[channel_id] = False
+    channel_messages[channel_id] = []
+    await ctx.send("*I shall no longer waste my time observing these mundane interactions.*")
 # """TO DO:
 
 #     ADD MORE FEATURES/COMMANDS (Summarise based off user prompt)

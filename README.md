@@ -13,6 +13,8 @@ DISCORD_BOT_TOKEN=your_discord_token
 # Commands
 Currently it only has 2 commands:
 ```python
-/ask # Allow user to ask questions
-/summarise # Summarise the Last 500 messages in then provide an answer in Vietnamese
+/t ask # Allow user to ask questions
+/t listen #  Starts tracking messages in the current channel
+/t stop Stops tracking messages
+/t sum Provides a summary of all messages since the listen command was used
 ```

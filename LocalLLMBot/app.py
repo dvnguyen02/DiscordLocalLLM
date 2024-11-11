@@ -153,11 +153,9 @@ async def summarise_chat(ctx):
     
     if not channel_listening[channel_id]:
         await ctx.send("*I wasn't observing this realm. Use `/t listen` first.*")
-        return
     
     if not channel_messages[channel_id]:
         await ctx.send("*There is nothing to analyze. These mortals have been surprisingly quiet.*")
-        return
     
     # Calculate duration
     duration = time.time() - listening_start_time[channel_id]

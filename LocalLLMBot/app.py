@@ -47,34 +47,6 @@ async def ask(ctx, *, message):
     ])
     await ctx.send(response["message"]["content"])
 
-
-@bot.command(name="summarise")
-async def ask(ctx):
-    messages = [msg.content async for msg in ctx.channel.history(limit=5000)]
-
-    # Join the messages together into a single string for summarization
-    msgs = "\n".join(messages)
-
-    # Create the summarization prompt
-    summarise_prompt = f"""
-    Summarise the following messages delimited by 3 backticks:
-    ```
-    {msgs}
-    ```
-    """
-    response = ollama.chat(model='llama3.2', messages=[
-        {
-            'role': 'system',
-            'content': 'You are Goku Black who provides summary of the past 5000 messages to the users.'
-        },
-        {
-            'role': 'user',
-            'content': summarise_prompt,
-        },
-    ])
-    await ctx.send(response["message"]["content"])
-
-
 # """
 # Give a summary of youtube video"""
 @bot.command(name="ytsum")
@@ -144,14 +116,14 @@ async def listen(ctx):
     channel_id = ctx.channel.id
     
     if channel_listening[channel_id]:
-        await ctx.send("*I am observing this chat.*")
+        await ctx.send("*I am already observing this chat.*")
         return
     
     channel_messages[channel_id] = []  # Clear previous messages
     channel_listening[channel_id] = True
     listening_start_time[channel_id] = time.time()
     
-    await ctx.send("* Use `/t summarise` to get the summary.*")
+    await ctx.send("* AI Goku is listening. Use `/t summarise` to get the summary.*")
 
 @bot.event
 async def on_message(message):
@@ -199,7 +171,7 @@ async def summarise_chat(ctx):
     
     summary_prompt = f"""
     Analyze and summarize this conversation that lasted {duration_minutes} minutes.
-    Focus on key discussion points, main participants, and important conclusions.
+    Focus on key discussion points, main participants, and important conclusions and keep it less than 200 words.
     
     Conversation:
     ```
@@ -220,7 +192,7 @@ async def summarise_chat(ctx):
     response = ollama.chat(model='llama3.2', messages=[
         {
             'role': 'system',
-            'content': 'You are Goku Black. Provide a dramatic and slightly condescending summary of the conversation while maintaining your villainous character.'
+            'content': 'Provide a summary of the conversation.'
         },
         {
             'role': 'user',
@@ -241,7 +213,7 @@ async def stop_listening(ctx):
     channel_id = ctx.channel.id
     
     if not channel_listening[channel_id]:
-        await ctx.send("*Hmph. I wasn't observing this realm anyway.*")
+        await ctx.send("*I wasn't observing this realm anyway.*")
         return
     
     channel_listening[channel_id] = False

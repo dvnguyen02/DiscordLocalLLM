@@ -11,10 +11,10 @@ DISCORD_BOT_TOKEN=your_discord_token
 ```
 
 # Commands
-Currently it only has 2 commands:
+Currently it only has 4 commands:
 ```python
 /t ask # Allow user to ask questions
 /t listen #  Starts tracking messages in the current channel
-/t stop Stops tracking messages
-/t sum Provides a summary of all messages since the listen command was used
+/t stop #Stops tracking messages
+/t sum #Provides a summary of all messages since the listen command was used
 ```

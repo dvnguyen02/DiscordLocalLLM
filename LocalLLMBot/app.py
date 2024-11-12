@@ -1,20 +1,29 @@
+import discord
+from discord import app_commands
+from discord.ext import commands
 import ollama
-
-
 import os 
 from dotenv import load_dotenv
-import discord
-from discord.ext import commands
-import re
-from youtube_transcript_api import YouTubeTranscriptApi
-from youtube_transcript_api.formatters import TextFormatter
 from collections import defaultdict
 import time
 
 load_dotenv()
 intents = discord.Intents.default()
 intents.message_content = True
-bot = commands.Bot(command_prefix="/t ", intents=intents)
+
+class GokuBot(commands.Bot):
+    def __init__(self):
+        super().__init__(command_prefix="/", intents=intents)
+        self.channel_messages = defaultdict(list)
+        self.channel_listening = defaultdict(bool)
+        self.listening_start_time = defaultdict(float)
+
+    async def setup_hook(self):
+        # This will sync the commands with Discord
+        await self.tree.sync()
+        print("Commands synced!")
+
+bot = GokuBot()
 
 
 @bot.event

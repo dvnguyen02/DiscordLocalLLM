@@ -28,7 +28,7 @@ bot = GokuBot()
 
 @bot.event
 async def on_ready():
-    print(f"Bot is ready as {bot.user.name}!")
+    print(f"{bot.user} is ready and online!")
 
 # response = ollama.chat(model='llama3.2', messages=[
 #   {
@@ -38,9 +38,9 @@ async def on_ready():
 # ])
 # print(response['message']['content'])
 
-@bot.command(name="introduce")
-async def hello(ctx):
-    await ctx.send("Hello, I'm Goku!")
+@bot.tree.command(name="introduce", description="Get a villainous introduction from Goku Black")
+async def introduce(interaction: discord.Interaction):
+    await interaction.response.send_message("Hello, I'm Goku Black!")
 
 @bot.command(name="ask")
 async def ask(ctx, *, message):

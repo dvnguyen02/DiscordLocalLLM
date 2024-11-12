@@ -8,10 +8,12 @@ from collections import defaultdict
 import time
 
 load_dotenv()
+
+# Enable all intents that we need
 intents = discord.Intents.default()
 intents.message_content = True
 intents.dm_messages = True  # Enable DM messages
-intents.messages = True  
+intents.messages = True     # Enable message events
 
 class GokuBot(commands.Bot):
     def __init__(self):
@@ -21,11 +23,9 @@ class GokuBot(commands.Bot):
         self.listening_start_time = defaultdict(float)
 
     async def setup_hook(self):
-        # Make commands available in DMs by setting dm_permission=True
-        self.tree.copy_global_to(guild=None)
+        # Simply sync the commands
         await self.tree.sync()
         print("Commands synced!")
-
 
 bot = GokuBot()
 
@@ -42,11 +42,7 @@ async def on_ready():
 # ])
 # print(response['message']['content'])
 
-@bot.tree.command(
-    name="introduce", 
-    description="Get a villainous introduction from Goku Black",
-    dm_permission=True 
-)
+@bot.tree.command(name="introduce", description="Get a villainous introduction from Goku Black")
 async def introduce(interaction: discord.Interaction):
     await interaction.response.send_message("Hello, I'm a Black Nigga!")
 

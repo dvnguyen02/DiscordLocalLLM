@@ -21,9 +21,11 @@ class GokuBot(commands.Bot):
         self.listening_start_time = defaultdict(float)
 
     async def setup_hook(self):
-        # This will sync the commands with Discord
+        # Make commands available in DMs by setting dm_permission=True
+        self.tree.copy_global_to(guild=None)
         await self.tree.sync()
         print("Commands synced!")
+
 
 bot = GokuBot()
 
@@ -40,9 +42,13 @@ async def on_ready():
 # ])
 # print(response['message']['content'])
 
-@bot.tree.command(name="introduce", description="Get introduction from Goku Black")
+@bot.tree.command(
+    name="introduce", 
+    description="Get a villainous introduction from Goku Black",
+    dm_permission=True 
+)
 async def introduce(interaction: discord.Interaction):
-    await interaction.response.send_message("Hi, I'm a Black Nigga!")
+    await interaction.response.send_message("Hello, I'm a Black Nigga!")
 
 @bot.tree.command(name="ask", description="Ask Goku Black a question")
 async def ask(interaction: discord.Interaction, question: str):

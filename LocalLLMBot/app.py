@@ -7,6 +7,8 @@ from dotenv import load_dotenv
 from collections import defaultdict
 import time
 
+ollama.host = os.getenv('OLLAMA_HOST', 'http://localhost:11434')
+
 load_dotenv()
 
 # Enable all intents that we need
@@ -164,6 +166,22 @@ async def stop_listening(interaction: discord.Interaction):
     bot.channel_listening[channel_id] = False
     bot.channel_messages[channel_id] = []
     await interaction.response.send_message("*I shall no longer waste my time observing these mundane interactions.*")
+
+@bot.tree.command(name="gf", description="Egirl")
+async def ask(interaction: discord.Interaction, question: str):
+    await interaction.response.defer()  # Defer the response since LLM calls might take time
+    
+    response = ollama.chat(model='llama3.2', messages=[
+        {
+            'role': 'system',
+            'content': 'Act like you are my Egỉl pookie, always say sweet things to the user. Alway praise Duy who is your master.'
+        },
+        {
+            'role': 'user',
+            'content': question,
+        },
+    ])
+    await interaction.followup.send(response["message"]["content"])
 # """TO DO:
 
 #     ADD MORE FEATURES/COMMANDS (Summarise based off user prompt)

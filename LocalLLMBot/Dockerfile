@@ -9,8 +9,14 @@ RUN apt-get update && apt-get install -y \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Poetry
-RUN curl -sSL https://install.python-poetry.org | python3 -
+# Install Poetry and add it to PATH
+ENV POETRY_HOME=/opt/poetry
+RUN curl -sSL https://install.python-poetry.org | python3 - \
+    && cd /usr/local/bin \
+    && ln -s /opt/poetry/bin/poetry
+
+# Verify Poetry installation
+RUN poetry --version
 
 # Copy only the files needed to install dependencies first
 COPY pyproject.toml poetry.lock ./
